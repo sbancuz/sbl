@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdint-gcc.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define PUG_MAX_HINTS_FOR_COMMAND 5
 #define PUG_MAX_COMMANDS 64
@@ -29,6 +30,7 @@ typedef struct pug_state_T {
 	struct {
 		size_t flags;
 		uint8_t count;
+		bool selected;
 		char *name;
 		char *descr;
 		PugFlags flags_handler[PUG_MAX_COMMANDS];
@@ -107,7 +109,6 @@ int pug_match_flag(PugState *ps, int sub, const char *c) {
 	return -1;
 }
 
-
 void pug_read_args(PugState *ps, int argc, char **argv) {
 	char **copy = argv;
 	int count = 1;
@@ -125,8 +126,10 @@ void pug_read_args(PugState *ps, int argc, char **argv) {
 	if (ps->subcommands_count > 0) {
 		for pug_iter_subcommands_m(ps, sub) {
 			// Search for a valid subcommand
-			if (strcmp(ps->subcommands[sub].name, *copy) != 0)
+			if (strcmp(ps->subcommands[sub].name, *copy) != 0) {
 				continue;
+			}
+			ps->subcommands[sub].selected = true;
 
 			// if found, then search if it needs flags or hints
 			if (ps->subcommands[sub].count == 0 && ps->subcommands[sub].hints.count == 0) {
@@ -198,6 +201,8 @@ void pug_read_args(PugState *ps, int argc, char **argv) {
 		printf("Can't find the provided subcommand\n");
 		exit(1);
 	} else {
+
+		ps->subcommands[0].selected = true;
 		// if found, then search if it needs flags or hints
 		if (ps->subcommands[0].count == 0 && ps->subcommands[0].hints.count == 0) {
 			return;
@@ -263,6 +268,32 @@ void pug_read_args(PugState *ps, int argc, char **argv) {
 
 }
 
+#define pug_switch_on_subcommand_s(state, subhints,  body)          \
+    do {                                                            \
+        for pug_iter_subcommands_s((state), sub) {                  \
+            if (!(state).subcommands[(sub)].selected)               \
+                continue;                                           \
+			char **subhints = (state).subcommands[(sub)].hints.v; 	\
+            switch (sub) {                                          \
+				body                                                \
+			}                                                       \
+                                                                    \
+        }                                                           \
+    } while(false)                                                  \
+
+#define pug_switch_on_flag_s(state, flaghints, body)                                        \
+    do {                                                                                    \
+		for pug_iter_flags_s(state, sub, flag) {                                            \
+			if (!(((state).subcommands[sub].flags & (1 << flag)) != 0))                     \
+				continue;                                                                   \
+			char **flaghints = (state).subcommands[(sub)].flags_handler[flag].hints.v;		\
+			switch(flag) {                                                                  \
+                body;                                                                       \
+			}															                    \
+		}                                                                                   \
+    } while(false);                                                                         \
+
+
 enum enumtest {
 	VAL1,
 	VAL2,
@@ -298,6 +329,27 @@ int main(int argc, char **argv) {
 	pug_register_help(&state, VAL4);
 	pug_read_args(&state, argc, argv);
 
-	// TODO: Iter only on set bits and if there are none, then prints help
-	//       pug_switch_on_command(state, command, {body})
+	// NOLINTNEXTLINE
+	pug_switch_on_subcommand_s(state, subhints,
+		case SUB1: {
+			pug_switch_on_flag_s(state, flaghints,
+				case VAL1: {
+					printf("YOOOO\n");
+					break;
+				};
+				case VAL2: {
+					printf("SUS\n");
+					break;
+				};
+				case VAL3: {
+					printf("%s %s\n", flaghints[0], flaghints[1]);
+					break;
+				};
+				default: {
+
+				}
+			);
+			break;
+		}
+	);
 }
