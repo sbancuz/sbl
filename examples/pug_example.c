@@ -116,11 +116,10 @@ int main(int argc, char **argv) {
 			break;
 			)
 		} break;
-			case SUB2
-				: {
-				char *msg = subhints[0]; // take the required hints (see line 65 if you missed it)
-
-				pug_switch_on_flag_s(state, flaghints,
+		case SUB2
+			: {
+			char *msg = subhints[0]; // take the required hints (see line 65 if you missed it)
+			pug_switch_on_flag_s(state, flaghints,
 				case F2SETUP1: {
 					int i = atoi(flaghints[0]); // I know atoi isn't safe but works for demonstrative purposes
 				}
@@ -130,11 +129,10 @@ int main(int argc, char **argv) {
 					baz();
 				}
 				break;
-
-				)
-			} break;
-			break;
-	);
+			)
+		} break;
+		break;
+		);
 	return EXIT_SUCCESS;
 }
 
