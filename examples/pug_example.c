@@ -81,8 +81,7 @@ int main(int argc, char **argv) {
 	// NOLINTNEXTLINE
 	pug_switch_on_subcommand_s(
 		state, subhints, // subhints is a char** that stores all the required input for the subcommand
-		case SUB1
-			: {
+		case SUB1: {
 			// Make shure you check for enum vals only for the same subcommand
 			if (!pug_any_of(&state, F1SETUP1, F1SETUP2)) {
 				// This here is used to check the exclusivity of one of these flags
@@ -91,14 +90,12 @@ int main(int argc, char **argv) {
 			}
 			pug_switch_on_flag_s(
 				state, flaghints,
-			case F1SETUP1
-				: {
+			case F1SETUP1: {
 				char *f1 = flaghints[0];
 			}
 			break;
 
-			case F1SETUP2
-				: {
+			case F1SETUP: {
 				char *f2 = flaghints[0];
 			}
 			break;
@@ -109,15 +106,13 @@ int main(int argc, char **argv) {
 			}
 			break;
 
-			case F1DO2
-				: {
+			case F1DO2: {
 				bar();
 			}
 			break;
 			)
 		} break;
-		case SUB2
-			: {
+		case SUB2: {
 			char *msg = subhints[0]; // take the required hints (see line 65 if you missed it)
 			pug_switch_on_flag_s(state, flaghints,
 				case F2SETUP1: {

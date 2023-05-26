@@ -31,10 +31,10 @@ typedef struct pug_flags_T {
 
 typedef struct pug_state_T {
 	char *program_name;
-	uint16_t version_major;
-	uint16_t version_minor;
-	uint16_t descr_padding;
-	uint16_t indent;
+	uint8_t version_major;
+	uint8_t version_minor;
+	uint8_t descr_padding;
+	uint8_t indent;
 	uint8_t subcommands_count;
 	struct {
 		size_t flags;
@@ -72,11 +72,11 @@ inline bool pug_all_of_impl(PugState *ps, int sub, size_t all_of_flags);
 
 #define pug_switch_on_subcommand_s(state, subhints,  body)          \
     do {                                                            \
-        for pug_iter_subcommands_s((state), sub) {                  \
-            if (!(state).subcommands[(sub)].selected)               \
+        for pug_iter_subcommands_s((state), _pug_sub) {                  \
+            if (!(state).subcommands[(_pug_sub)].selected)               \
                 continue;                                           \
-			char **subhints = (state).subcommands[(sub)].hints.v; 	\
-            switch (sub) {                                          \
+			char **subhints = (state).subcommands[(_pug_sub)].hints.v; 	\
+            switch (_pug_sub) {                                          \
 				body                                                \
 			}                                                       \
                                                                     \
@@ -85,10 +85,10 @@ inline bool pug_all_of_impl(PugState *ps, int sub, size_t all_of_flags);
 
 #define pug_switch_on_flag_s(state, flaghints, body)                                        \
     do {                                                                                    \
-		for pug_iter_flags_s(state, sub, flag) {                                            \
-			if (!(((state).subcommands[sub].flags & (1 << flag)) != 0))                     \
+		for pug_iter_flags_s(state, _pug_sub, flag) {                                            \
+			if (!(((state).subcommands[_pug_sub].flags & (1 << flag)) != 0))                     \
 				continue;                                                                   \
-			char **flaghints = (state).subcommands[(sub)].flags_handler[flag].hints.v;		\
+			char **flaghints = (state).subcommands[(_pug_sub)].flags_handler[flag].hints.v;		\
 			switch(flag) {                                                                  \
                 body;                                                                       \
 			}															                    \
